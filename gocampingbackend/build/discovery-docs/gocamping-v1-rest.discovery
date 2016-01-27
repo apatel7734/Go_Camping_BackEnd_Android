@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/LwYoAK3K3QJ3j99drYPXngHDmSw\"",
+ "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/J3Hs_IofjJnKt9QqRFHEwmu4Dzo\"",
  "discoveryVersion": "v1",
  "id": "gocamping:v1",
  "name": "gocamping",
@@ -195,18 +195,6 @@
   }
  },
  "methods": {
-  "addCampingTrip": {
-   "id": "gocamping.addCampingTrip",
-   "path": "addCampingTrip",
-   "httpMethod": "POST",
-   "request": {
-    "$ref": "CampingTrip",
-    "parameterName": "resource"
-   },
-   "scopes": [
-    "https://www.googleapis.com/auth/userinfo.email"
-   ]
-  },
   "addFamily": {
    "id": "gocamping.addFamily",
    "path": "addFamily",
@@ -475,6 +463,24 @@
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
    ]
+  }
+ },
+ "resources": {
+  "campingTripEndpoint": {
+   "methods": {
+    "addCampingTrip": {
+     "id": "gocamping.campingTripEndpoint.addCampingTrip",
+     "path": "addCampingTrip",
+     "httpMethod": "POST",
+     "request": {
+      "$ref": "CampingTrip",
+      "parameterName": "resource"
+     },
+     "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+     ]
+    }
+   }
   }
  }
 }
