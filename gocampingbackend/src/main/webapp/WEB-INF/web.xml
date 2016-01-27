@@ -13,7 +13,13 @@
         <servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
         <init-param>
             <param-name>services</param-name>
-            <param-value>com.avgtechie.gocampingbackend.apis.CampingTripEndpoint,com.avgtechie.gocampingbackend.RegistrationEndpoint, com.avgtechie.gocampingbackend.MessagingEndpoint</param-value>
+            <param-value>com.avgtechie.gocampingbackend.apis.CampingTripEndpoint,
+                com.avgtechie.gocampingbackend.RegistrationEndpoint,
+                com.avgtechie.gocampingbackend.MessagingEndpoint,
+                com.avgtechie.gocampingbackend.apis.ExpenseEndpoint,
+                com.avgtechie.gocampingbackend.apis.FamilyEndpoint,
+                com.avgtechie.gocampingbackend.apis.MemberEndpoint
+            </param-value>
         </init-param>
     </servlet>
     <servlet-mapping>

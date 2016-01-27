@@ -6,13 +6,16 @@ import java.util.List;
  * Created by fob966 on 1/25/16.
  */
 public class Family {
+
     private Long id;
     private String name;
     private String email;
     private String phoneNumber;
-    private Long campingTripID;
-    private List<Long> expenseIds;
-    private List<Long> membersIds;
+    private List<CampingTrip> campingTrips;
+    private double totalSpendExpenseAmount;
+    private double totalOwedExpenseAmount;
+    private List<Expense> expenses;
+    private List<Member> members;
 
     public Long getId() {
         return id;
@@ -46,27 +49,43 @@ public class Family {
         this.phoneNumber = phoneNumber;
     }
 
-    public Long getCampingTripID() {
-        return campingTripID;
+    public List<CampingTrip> getCampingTrips() {
+        return campingTrips;
     }
 
-    public void setCampingTripID(Long campingTripID) {
-        this.campingTripID = campingTripID;
+    public void setCampingTrips(List<CampingTrip> campingTrips) {
+        this.campingTrips = campingTrips;
     }
 
-    public List<Long> getExpenseIds() {
-        return expenseIds;
+    public double getTotalSpendExpenseAmount() {
+        return totalSpendExpenseAmount;
     }
 
-    public void setExpenseIds(List<Long> expenseIds) {
-        this.expenseIds = expenseIds;
+    public void setTotalSpendExpenseAmount(double totalSpendExpenseAmount) {
+        this.totalSpendExpenseAmount = totalSpendExpenseAmount;
     }
 
-    public List<Long> getMembersIds() {
-        return membersIds;
+    public double getTotalOwedExpenseAmount() {
+        return totalOwedExpenseAmount;
     }
 
-    public void setMembersIds(List<Long> membersIds) {
-        this.membersIds = membersIds;
+    public void setTotalOwedExpenseAmount(double totalOwedExpenseAmount) {
+        this.totalOwedExpenseAmount = totalOwedExpenseAmount;
+    }
+
+    public List<Expense> getExpenses() {
+        return expenses;
+    }
+
+    public void setExpenses(List<Expense> expenses) {
+        this.expenses = expenses;
+    }
+
+    public List<Member> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<Member> members) {
+        this.members = members;
     }
 }

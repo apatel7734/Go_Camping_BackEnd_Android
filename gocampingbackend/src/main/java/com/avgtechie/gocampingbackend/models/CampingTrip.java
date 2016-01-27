@@ -18,8 +18,8 @@ public class CampingTrip {
     private String title;
     private Date dateFrom;
     private Date dateTo;
-    private List<String> familyIds;
     private String addressString;
+    private List<Family> families;
 
 
     private GeoPt location;
