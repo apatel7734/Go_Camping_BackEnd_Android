@@ -1,6 +1,6 @@
 {
  "kind": "discovery#rpcDescription",
- "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/J3Hs_IofjJnKt9QqRFHEwmu4Dzo\"",
+ "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/M3EqvDPhMzvpdS23dx7NVOhH9ks\"",
  "discoveryVersion": "v1",
  "id": "gocamping:v1",
  "name": "gocamping",
@@ -73,6 +73,9 @@
    "id": "CampingTrip",
    "type": "object",
    "properties": {
+    "addressString": {
+     "type": "string"
+    },
     "dateFrom": {
      "type": "string",
      "format": "date-time"
@@ -81,9 +84,18 @@
      "type": "string",
      "format": "date-time"
     },
+    "familiesKeys": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
     "id": {
      "type": "string",
      "format": "int64"
+    },
+    "locationPoint": {
+     "$ref": "GeoPt"
     },
     "title": {
      "type": "string"
@@ -104,7 +116,27 @@
   },
   "Expense": {
    "id": "Expense",
-   "type": "object"
+   "type": "object",
+   "properties": {
+    "description": {
+     "type": "string"
+    },
+    "familyId": {
+     "type": "string",
+     "format": "int64"
+    },
+    "id": {
+     "type": "string",
+     "format": "int64"
+    },
+    "itemCost": {
+     "type": "number",
+     "format": "double"
+    },
+    "itemName": {
+     "type": "string"
+    }
+   }
   },
   "ExpenseCollection": {
    "id": "ExpenseCollection",
@@ -118,37 +150,43 @@
     }
    }
   },
+  "FamiliesWrapper": {
+   "id": "FamiliesWrapper",
+   "type": "object",
+   "properties": {
+    "families": {
+     "type": "array",
+     "items": {
+      "$ref": "Family"
+     }
+    }
+   }
+  },
   "Family": {
    "id": "Family",
    "type": "object",
    "properties": {
-    "campingTrips": {
-     "type": "array",
-     "items": {
-      "$ref": "CampingTrip"
-     }
-    },
     "email": {
      "type": "string"
     },
-    "expenses": {
+    "expenseKeys": {
      "type": "array",
      "items": {
-      "$ref": "Expense"
+      "type": "string"
      }
+    },
+    "fullName": {
+     "type": "string"
     },
     "id": {
      "type": "string",
      "format": "int64"
     },
-    "members": {
+    "memberKeys": {
      "type": "array",
      "items": {
-      "$ref": "Member"
+      "type": "string"
      }
-    },
-    "name": {
-     "type": "string"
     },
     "phoneNumber": {
      "type": "string"
@@ -157,9 +195,12 @@
      "type": "number",
      "format": "double"
     },
-    "totalSpendExpenseAmount": {
+    "totalSpentExpenseAmount": {
      "type": "number",
      "format": "double"
+    },
+    "tripRSVPStatus": {
+     "$ref": "TripRSVPStatus"
     }
    }
   },
@@ -175,9 +216,40 @@
     }
    }
   },
+  "GeoPt": {
+   "id": "GeoPt",
+   "type": "object",
+   "properties": {
+    "latitude": {
+     "type": "number",
+     "format": "float"
+    },
+    "longitude": {
+     "type": "number",
+     "format": "float"
+    }
+   }
+  },
   "Member": {
    "id": "Member",
-   "type": "object"
+   "type": "object",
+   "properties": {
+    "age": {
+     "type": "integer",
+     "format": "int32"
+    },
+    "familyId": {
+     "type": "string",
+     "format": "int64"
+    },
+    "id": {
+     "type": "string",
+     "format": "int64"
+    },
+    "name": {
+     "type": "string"
+    }
+   }
   },
   "MemberCollection": {
    "id": "MemberCollection",
@@ -190,14 +262,56 @@
      }
     }
    }
+  },
+  "TripRSVPStatus": {
+   "id": "TripRSVPStatus",
+   "type": "string",
+   "enum": [
+    "NO",
+    "PENDING",
+    "YES"
+   ],
+   "enumDescriptions": [
+    "",
+    "",
+    ""
+   ]
+  },
+  "UserAccount": {
+   "id": "UserAccount",
+   "type": "object",
+   "properties": {
+    "campingTripsKeys": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "email": {
+     "type": "string"
+    },
+    "fullName": {
+     "type": "string"
+    },
+    "membersKeys": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "phoneNumber": {
+     "type": "string",
+     "format": "int64"
+    }
+   }
   }
  },
  "methods": {
-  "gocamping.addFamily": {
-   "id": "gocamping.addFamily",
+  "gocamping.createCampingTrip": {
+   "id": "gocamping.createCampingTrip",
    "parameters": {
     "resource": {
-     "$ref": "Family"
+     "$ref": "CampingTrip"
     }
    },
    "parameterOrder": [
@@ -207,15 +321,17 @@
     "https://www.googleapis.com/auth/userinfo.email"
    ]
   },
-  "gocamping.campingTripEndpoint.addCampingTrip": {
-   "id": "gocamping.campingTripEndpoint.addCampingTrip",
+  "gocamping.deletUser": {
+   "id": "gocamping.deletUser",
    "parameters": {
-    "resource": {
-     "$ref": "CampingTrip"
+    "registeredPhoneNumber": {
+     "type": "string",
+     "required": true,
+     "format": "int64"
     }
    },
    "parameterOrder": [
-    "resource"
+    "registeredPhoneNumber"
    ],
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
@@ -288,14 +404,12 @@
   "gocamping.deleteFamily": {
    "id": "gocamping.deleteFamily",
    "parameters": {
-    "familyId": {
-     "type": "string",
-     "required": true,
-     "format": "int64"
+    "resource": {
+     "$ref": "FamiliesWrapper"
     }
    },
    "parameterOrder": [
-    "familyId"
+    "resource"
    ],
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
@@ -320,6 +434,16 @@
   "gocamping.getCampingTrips": {
    "id": "gocamping.getCampingTrips",
    "allowGet": true,
+   "parameters": {
+    "userPhoneNumber": {
+     "type": "string",
+     "required": true,
+     "format": "int64"
+    }
+   },
+   "parameterOrder": [
+    "userPhoneNumber"
+   ],
    "returns": {
     "$ref": "CampingTripCollection"
    },
@@ -362,26 +486,6 @@
    ],
    "returns": {
     "$ref": "ExpenseCollection"
-   },
-   "scopes": [
-    "https://www.googleapis.com/auth/userinfo.email"
-   ]
-  },
-  "gocamping.getFamilies": {
-   "id": "gocamping.getFamilies",
-   "allowGet": true,
-   "parameters": {
-    "campingTripId": {
-     "type": "string",
-     "required": true,
-     "format": "int64"
-    }
-   },
-   "parameterOrder": [
-    "campingTripId"
-   ],
-   "returns": {
-    "$ref": "FamilyCollection"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
@@ -443,6 +547,63 @@
    "returns": {
     "$ref": "MemberCollection"
    },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "gocamping.inviteFamilies": {
+   "id": "gocamping.inviteFamilies",
+   "parameters": {
+    "campingTripId": {
+     "type": "string",
+     "required": true,
+     "format": "int64"
+    },
+    "resource": {
+     "$ref": "FamiliesWrapper"
+    }
+   },
+   "parameterOrder": [
+    "resource",
+    "campingTripId"
+   ],
+   "returns": {
+    "$ref": "FamilyCollection"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "gocamping.registerUser": {
+   "id": "gocamping.registerUser",
+   "parameters": {
+    "resource": {
+     "$ref": "UserAccount"
+    }
+   },
+   "parameterOrder": [
+    "resource"
+   ],
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "gocamping.rsvpToTheTrip": {
+   "id": "gocamping.rsvpToTheTrip",
+   "parameters": {
+    "campingTripID": {
+     "type": "string",
+     "required": true
+    },
+    "familyID": {
+     "type": "string",
+     "required": true
+    }
+   },
+   "parameterOrder": [
+    "familyID",
+    "campingTripID"
+   ],
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
    ]

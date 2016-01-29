@@ -18,7 +18,8 @@
                 com.avgtechie.gocampingbackend.MessagingEndpoint,
                 com.avgtechie.gocampingbackend.apis.ExpenseEndpoint,
                 com.avgtechie.gocampingbackend.apis.FamilyEndpoint,
-                com.avgtechie.gocampingbackend.apis.MemberEndpoint
+                com.avgtechie.gocampingbackend.apis.MemberEndpoint,
+                com.avgtechie.gocampingbackend.apis.UserAccountEndpoint
             </param-value>
         </init-param>
     </servlet>

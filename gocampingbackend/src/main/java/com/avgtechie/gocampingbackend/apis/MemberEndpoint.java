@@ -1,6 +1,6 @@
 package com.avgtechie.gocampingbackend.apis;
 
-import com.avgtechie.gocampingbackend.models.Member;
+import com.avgtechie.gocampingbackend.objectifymodels.Member;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
