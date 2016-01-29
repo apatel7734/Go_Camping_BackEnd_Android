@@ -1,11 +1,14 @@
 package com.avgtechie.gocampingbackend.apis;
 
 import com.avgtechie.gocampingbackend.objectifymodels.CampingTrip;
+import com.avgtechie.gocampingbackend.utils.CampingTripValidationResult;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import java.util.logging.Logger;
 import java.util.List;
+import com.avgtechie.gocampingbackend.objectifymodels.CampingTrip.*;
+
 
 import static com.avgtechie.gocampingbackend.OfyService.ofy;
 
@@ -35,12 +38,13 @@ public class CampingTripEndpoint {
 
 
     @ApiMethod(httpMethod = "POST", name = "createCampingTrip")
-    public final void createCampingTrip(final CampingTrip campingTrip){
-        try{
-            ofy().save().entity(campingTrip);
-        }catch (Exception e){
-            LOG.info("Exception : " + e);
+    public final CampingTripValidationResult createCampingTrip(final CampingTrip campingTrip){
+        CampingTripValidationResult validationResult = campingTrip.validate();
+        if(!validationResult.isValid()){
+            return validationResult;
         }
+        ofy().save().entity(campingTrip);
+        return validationResult;
     }
 
     @ApiMethod(httpMethod = "POST", name = "deleteCampingTrip")

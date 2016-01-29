@@ -1,9 +1,11 @@
 package com.avgtechie.gocampingbackend.objectifymodels;
 
+import com.avgtechie.gocampingbackend.utils.CampingTripValidationResult;
 import com.google.appengine.api.datastore.GeoPt;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -77,4 +79,32 @@ public class CampingTrip {
     public void setFamiliesKeys(List<String> familiesKeys) {
         this.familiesKeys = familiesKeys;
     }
+
+
+    public CampingTripValidationResult validate(){
+
+        Date today = Calendar.getInstance().getTime();
+
+        // TODO: 1/29/16 remove these test lines.
+        //test lines start******
+        dateFrom = today;
+        dateTo = today;
+        //test lines end*******
+
+        if (title == null || title.isEmpty()){
+            return new CampingTripValidationResult(false,"Must provide campingTrip Title.");
+            // TODO: 1/29/16 remove test lines, just for development.
+//        }else if (dateFrom == null || dateFrom.before(today)){
+//            return new CampingTripValidationResult(false,"FromDate must be after today's date.");
+//        }else if (dateTo == null || dateTo.before(dateFrom)){
+//            return new CampingTripValidationResult(false, "ToDate must be after FromDate.");
+        }else if (locationPoint == null){
+            return new CampingTripValidationResult(false, "Must provide locationPoint");
+        }else if (addressString == null || addressString.isEmpty()){
+            return new CampingTripValidationResult(false,"Must provide camping address.It can't be empty");
+        }else{
+            return CampingTripValidationResult.getValidCampingTripResult();
+        }
+    }
 }
+

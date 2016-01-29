@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/M3EqvDPhMzvpdS23dx7NVOhH9ks\"",
+ "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/3s83nEbedrpTh6QCdqWRurxsO7Y\"",
  "discoveryVersion": "v1",
  "id": "gocamping:v1",
  "name": "gocamping",
@@ -113,6 +113,18 @@
      "items": {
       "$ref": "CampingTrip"
      }
+    }
+   }
+  },
+  "CampingTripValidationResult": {
+   "id": "CampingTripValidationResult",
+   "type": "object",
+   "properties": {
+    "errorMessage": {
+     "type": "string"
+    },
+    "valid": {
+     "type": "boolean"
     }
    }
   },
@@ -316,6 +328,9 @@
    "request": {
     "$ref": "CampingTrip",
     "parameterName": "resource"
+   },
+   "response": {
+    "$ref": "CampingTripValidationResult"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
