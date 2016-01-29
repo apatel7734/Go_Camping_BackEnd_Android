@@ -1,13 +1,11 @@
 package com.avgtechie.gocampingbackend.apis;
 
-import com.avgtechie.gocampingbackend.OfyService;
 import com.avgtechie.gocampingbackend.objectifymodels.UserAccount;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.appengine.api.log.InvalidRequestException;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.NotFoundException;
 
 import java.util.logging.Logger;
 
