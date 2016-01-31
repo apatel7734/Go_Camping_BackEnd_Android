@@ -15,8 +15,8 @@ public class UserAccount {
     long phoneNumber;
     String fullName;
     String email;
-    List<String> campingTripsKeys;
-    List<String> membersKeys;
+    List<Long> campingTripsKeys;
+    List<Long> membersKeys;
 
     public long getPhoneNumber() {
         return phoneNumber;
@@ -42,19 +42,19 @@ public class UserAccount {
         this.email = email;
     }
 
-    public List<String> getCampingTripsKeys() {
+    public List<Long> getCampingTripsKeys() {
         return campingTripsKeys;
     }
 
-    public void setCampingTripsKeys(List<String> campingTripsKeys) {
+    public void setCampingTripsKeys(List<Long> campingTripsKeys) {
         this.campingTripsKeys = campingTripsKeys;
     }
 
-    public List<String> getMembersKeys() {
+    public List<Long> getMembersKeys() {
         return membersKeys;
     }
 
-    public void setMembersKeys(List<String> membersKeys) {
+    public void setMembersKeys(List<Long> membersKeys) {
         this.membersKeys = membersKeys;
     }
 }

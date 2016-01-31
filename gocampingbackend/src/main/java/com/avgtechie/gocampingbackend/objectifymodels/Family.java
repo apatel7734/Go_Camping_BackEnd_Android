@@ -19,8 +19,8 @@ public class Family {
     private double totalSpentExpenseAmount;
     private double totalOwedExpenseAmount;
     private TripRSVPStatus tripRSVPStatus;
-    private List<String> expenseKeys;
-    private List<String> memberKeys;
+    private List<Long> expenseKeys;
+    private List<Long> memberKeys;
 
     public Long getId() {
         return id;
@@ -76,21 +76,5 @@ public class Family {
 
     public void setTripRSVPStatus(TripRSVPStatus tripRSVPStatus) {
         this.tripRSVPStatus = tripRSVPStatus;
-    }
-
-    public List<String> getExpenseKeys() {
-        return expenseKeys;
-    }
-
-    public void setExpenseKeys(List<String> expenseKeys) {
-        this.expenseKeys = expenseKeys;
-    }
-
-    public List<String> getMemberKeys() {
-        return memberKeys;
-    }
-
-    public void setMemberKeys(List<String> memberKeys) {
-        this.memberKeys = memberKeys;
     }
 }

@@ -22,7 +22,7 @@ public class CampingTrip {
     private Date dateTo;
     private String addressString;
     private GeoPt locationPoint;
-    private List<String> familiesKeys;
+    private List<Long> familiesKeys;
 
     public Long getId() {
         return id;
@@ -72,14 +72,13 @@ public class CampingTrip {
         this.locationPoint = locationPoint;
     }
 
-    public List<String> getFamiliesKeys() {
+    public List<Long> getFamiliesKeys() {
         return familiesKeys;
     }
 
-    public void setFamiliesKeys(List<String> familiesKeys) {
+    public void setFamiliesKeys(List<Long> familiesKeys) {
         this.familiesKeys = familiesKeys;
     }
-
 
     public CampingTripValidationResult validate(){
 

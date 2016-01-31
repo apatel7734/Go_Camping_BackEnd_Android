@@ -7,6 +7,7 @@ import com.google.api.server.spi.config.Named;
 import com.google.appengine.api.log.InvalidRequestException;
 import com.googlecode.objectify.Key;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import static com.avgtechie.gocampingbackend.OfyService.*;
@@ -28,8 +29,11 @@ public class UserAccountEndpoint {
             throw  new InvalidRequestException("UserAccount can't be null.");
         }
         //check phone number already registered
-        if(this.findUserAccount(userAccount.getPhoneNumber()) != null){
+        if(DatastoreUtility.findSavedUserAccount(userAccount.getPhoneNumber()) != null){
             throw  new InvalidRequestException("Already register PhoneNumber provided.");
+        }
+        if(userAccount.getCampingTripsKeys() == null){
+            userAccount.setCampingTripsKeys(new ArrayList<Long>());
         }
 
         ofy().save().entity(userAccount).now();
@@ -40,10 +44,6 @@ public class UserAccountEndpoint {
 
         //deactivate useraccount
 
-    }
-
-    private UserAccount findUserAccount(final long phoneNumber) {
-        return ofy().load().key(Key.create(UserAccount.class, phoneNumber)).now();
     }
 
 }
