@@ -1,6 +1,6 @@
 {
  "kind": "discovery#rpcDescription",
- "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/l_fK65aXlKImAXmGH-m9WD5Khz8\"",
+ "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/LEWMxlPqNFeingL5qXLAIRGoriE\"",
  "discoveryVersion": "v1",
  "id": "gocamping:v1",
  "name": "gocamping",
@@ -220,18 +220,6 @@
     },
     "tripRSVPStatus": {
      "$ref": "TripRSVPStatus"
-    }
-   }
-  },
-  "FamilyCollection": {
-   "id": "FamilyCollection",
-   "type": "object",
-   "properties": {
-    "items": {
-     "type": "array",
-     "items": {
-      "$ref": "Family"
-     }
     }
    }
   },
@@ -588,9 +576,6 @@
     "resource",
     "campingTripId"
    ],
-   "returns": {
-    "$ref": "FamilyCollection"
-   },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
    ]

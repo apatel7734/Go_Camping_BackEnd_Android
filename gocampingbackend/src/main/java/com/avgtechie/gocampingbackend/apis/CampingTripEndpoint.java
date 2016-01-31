@@ -10,6 +10,7 @@ import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Result;
 import com.googlecode.objectify.Work;
 
 
@@ -64,15 +65,15 @@ public class CampingTripEndpoint {
         CampingTrip savedCampingTrip = ofy().transact(new Work<CampingTrip>() {
             @Override
             public CampingTrip run() {
-                final Key<CampingTrip> campingTripKey = factory().allocateId(CampingTrip.class);
-                campingTripWrapper.getCampingTrip().setId(campingTripKey.getId());
+//                final Key<CampingTrip> campingTripKey = factory().allocateId(CampingTrip.class);
+                Key<CampingTrip> savedCampingTrip = ofy().save().entity(campingTripWrapper.getCampingTrip()).now();
                 List<Long> userTripKeys = userAccount.getCampingTripsKeys();
 
                 if (userTripKeys == null) {
                     userTripKeys = new ArrayList<Long>();
                 }
 
-                userTripKeys.add(campingTripKey.getId());
+                userTripKeys.add(savedCampingTrip.getId());
                 userAccount.setCampingTripsKeys(userTripKeys);
                 ofy().save().entities(campingTripWrapper.getCampingTrip(), userAccount);
                 return campingTripWrapper.getCampingTrip();
