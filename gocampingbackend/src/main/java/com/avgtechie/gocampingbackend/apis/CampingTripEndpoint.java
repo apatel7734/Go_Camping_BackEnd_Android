@@ -44,7 +44,7 @@ public class CampingTripEndpoint {
         Map<Long, CampingTrip> savedCampingTrips = ofy().load().type(CampingTrip.class).ids(campingTripsIds);
         LOG.info("Returned Camping Trip : " + savedCampingTrips);
         //generate object and return.
-        return (List<CampingTrip>) savedCampingTrips.values();
+        return  new ArrayList<CampingTrip>(savedCampingTrips.values());
     }
 
 
