@@ -3,14 +3,16 @@ package com.avgtechie.gocampingbackend.apis;
 import com.avgtechie.gocampingbackend.objectifymodels.CampingTrip;
 import com.avgtechie.gocampingbackend.objectifymodels.FamiliesWrapper;
 import com.avgtechie.gocampingbackend.objectifymodels.Family;
-import com.avgtechie.gocampingbackend.utils.CampingTripValidationResult;
+import com.avgtechie.gocampingbackend.objectifymodels.FamilyRSVPWrapper;
+import com.avgtechie.gocampingbackend.objectifymodels.Member;
+import com.avgtechie.gocampingbackend.objectifymodels.TripRSVPStatus;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
+import com.google.api.server.spi.response.NotFoundException;
+import com.google.appengine.repackaged.com.google.api.client.util.store.DataStoreUtils;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Result;
 import com.googlecode.objectify.VoidWork;
-import com.googlecode.objectify.Work;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,52 +31,96 @@ public class FamilyEndpoint {
             Logger.getLogger(FamilyEndpoint.class.getName());
 
     @ApiMethod(name = "inviteFamilies")
-    public void inviteFamilies(@Named("campingTripId") Long campingTripId, FamiliesWrapper familiesWrapper) throws  IllegalArgumentException{
-        //validate and get families list
+    public void inviteFamilies(@Named("campingTripId") Long campingTripId, FamiliesWrapper familiesWrapper) throws  NotFoundException{
+
         final CampingTrip savedCampingTrip = DatastoreUtility.findSavedCampingTrip(campingTripId);
         if(savedCampingTrip == null){
-            throw new IllegalArgumentException("Can't find CampingTripID with provided ID " + campingTripId);
+            throw new NotFoundException("Can't find CampingTrip with provided ID " + campingTripId);
         }
-        //save families
+
         final List<Family> invitedFamilies = familiesWrapper.getFamilies();
         ofy().transact(new VoidWork() {
             @Override
             public void vrun() {
                 Map<Key<Family>, Family> savedFamilies = ofy().save().entities(invitedFamilies).now();
-                LOG.info("Saved Families = "+savedFamilies);
-                LOG.info("Saved Camping Trip = "+savedCampingTrip);
-                List<Long> familyKeys = savedCampingTrip.getFamiliesKeys();
+                List<Long> familyKeys = savedCampingTrip.getFamiliesIds();
                 if(familyKeys == null){
                     familyKeys = new ArrayList<Long>();
                 }
                 for (Key<Family> familyKey : savedFamilies.keySet()) {
                     familyKeys.add(familyKey.getId());
                 }
-                savedCampingTrip.setFamiliesKeys(familyKeys);
+                savedCampingTrip.setFamiliesIds(familyKeys);
                 ofy().save().entity(savedCampingTrip).now();
             }
         });
 
-        // add back end queue task to send invitation texts to each family
+        // TODO: 1/31/16 add task queue to send messages.
     }
 
     @ApiMethod(name = "getFamily")
-    public Family getFamily(@Named("familyID") Long familyID){
+    public Family getFamily(@Named("familyID") Long familyId) throws NotFoundException{
 
-        //load family by familyID
-        return null;
+        Family savedFamily = DatastoreUtility.findSavedFamily(familyId);
+        if(savedFamily == null){
+            throw new NotFoundException("Family is not available by provided ID "+familyId);
+        }
+        return savedFamily;
     }
 
     @ApiMethod(name = "deleteFamily")
-    public void deleteFamilies(FamiliesWrapper familiesWrapper){
-
+    public void deleteFamily(@Named("familyId") Long familyId){
+        // TODO: 1/31/16 find family and delete.
+        // TODO: 1/31/16 recalculate campingTrip expense for each Family if RSVPed status = YES.
     }
 
 
 
-    @ApiMethod(name="rsvpToTheTrip")
-    public void rsvpToTheTrip(@Named("familyID") String familyID, @Named("campingTripID") String campingTripID){
+    @ApiMethod(name="rsvpForTheFamily")
+    public void rsvpForTheFamily(final FamilyRSVPWrapper familyRSVPWrapper) throws NotFoundException, IllegalArgumentException{
+        final Family savedFamily = DatastoreUtility.findSavedFamily(familyRSVPWrapper.getFamilyId());
 
+        if(savedFamily == null){
+            throw new NotFoundException("Unable to find Family with Id : "+ familyRSVPWrapper.getFamilyId());
+        }
+
+        if(familyRSVPWrapper.getFamilyRSVPedResponse() == TripRSVPStatus.YES && familyRSVPWrapper.getTotalMembersComing() <= 0){
+            throw new IllegalArgumentException("Invalid totalMembersComing for familyId" + familyRSVPWrapper.getFamilyId() + ", When RSVP YES. totalMembersComing must be greater than zero.");
+        }
+
+        final CampingTrip savedCampingTrip = DatastoreUtility.findSavedCampingTrip(familyRSVPWrapper.getCampingTripId());
+        if(savedCampingTrip == null){
+            throw new NotFoundException("Unable to find CampingTrip with provided Id : "+ familyRSVPWrapper.getCampingTripId());
+        }
+
+        savedFamily.setTripRSVPStatus(familyRSVPWrapper.getFamilyRSVPedResponse());
+
+
+        final List<Member> members = new ArrayList<Member>();
+        for (int index = 0 ; index < familyRSVPWrapper.getTotalMembersComing() ; index++){
+            Member member = new Member();
+            member.setFamilyId(savedFamily.getId());
+            member.setName("Member - " + index);
+            members.add(member);
+        }
+
+        ofy().transact(new VoidWork() {
+            @Override
+            public void vrun() {
+                Map<Key<Member>, Member> savedMembers = ofy().save().entities(members).now();
+                List<Long> membersIds = savedFamily.getMemberIds();
+                if(membersIds == null){
+                    membersIds = new ArrayList<Long>();
+                }
+
+                for (Key<Member> memberKey : savedMembers.keySet()) {
+                    membersIds.add(memberKey.getId());
+                }
+                savedFamily.setMemberIds(membersIds);
+                ofy().save().entity(savedFamily).now();
+                DatastoreUtility.recalculateAllExpenseForCampingTrip(savedCampingTrip);
+            }
+        });
     }
 
 

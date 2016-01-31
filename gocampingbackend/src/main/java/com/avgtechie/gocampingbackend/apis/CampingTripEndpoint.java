@@ -7,19 +7,17 @@ import com.avgtechie.gocampingbackend.utils.CampingTripValidationResult;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
+import com.google.api.server.spi.response.NotFoundException;
 import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Result;
 import com.googlecode.objectify.Work;
-
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static com.avgtechie.gocampingbackend.OfyService.factory;
 import static com.avgtechie.gocampingbackend.OfyService.ofy;
 
 
@@ -33,7 +31,7 @@ public class CampingTripEndpoint {
             Logger.getLogger(CampingTripEndpoint.class.getName());
 
     @ApiMethod(httpMethod = HttpMethods.POST, name = "getCampingTrips")
-    public List<CampingTrip> getCampingTrips(UserAccount userAccount) throws UnauthorizedException {
+    public List<CampingTrip> getCampingTrips(UserAccount userAccount) throws UnauthorizedException, NotFoundException {
         //not null phoneNumber
         UserAccount savedUserAccount = DatastoreUtility.findSavedUserAccount(userAccount.getPhoneNumber());
         //get userAccount by phone number and user campingKeys
@@ -42,10 +40,10 @@ public class CampingTripEndpoint {
         }
         //load all campingTrips by Keys
         List<Long> campingTripsIds = savedUserAccount.getCampingTripsKeys();
-        Map<Long, CampingTrip> savedCampingTrips = ofy().load().type(CampingTrip.class).ids(campingTripsIds);
-        LOG.info("Returned Camping Trip : " + savedCampingTrips);
-        //generate object and return.
-        return  new ArrayList<CampingTrip>(savedCampingTrips.values());
+        if(campingTripsIds == null || campingTripsIds.size() <= 0){
+            throw  new NotFoundException("Can't find any campingTrip for currently logged in user.");
+        }
+        return DatastoreUtility.findSavedCampingTripsByIds(campingTripsIds);
     }
 
 

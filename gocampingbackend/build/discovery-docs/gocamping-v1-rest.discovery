@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/LEWMxlPqNFeingL5qXLAIRGoriE\"",
+ "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/akSJZaVlg00aull373mqYhfYero\"",
  "discoveryVersion": "v1",
  "id": "gocamping:v1",
  "name": "gocamping",
@@ -86,7 +86,7 @@
      "type": "string",
      "format": "date-time"
     },
-    "familiesKeys": {
+    "familiesIds": {
      "type": "array",
      "items": {
       "type": "string",
@@ -202,12 +202,26 @@
     "email": {
      "type": "string"
     },
+    "expenseIds": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "format": "int64"
+     }
+    },
     "fullName": {
      "type": "string"
     },
     "id": {
      "type": "string",
      "format": "int64"
+    },
+    "memberIds": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "format": "int64"
+     }
     },
     "phoneNumber": {
      "type": "string"
@@ -222,6 +236,27 @@
     },
     "tripRSVPStatus": {
      "$ref": "TripRSVPStatus"
+    }
+   }
+  },
+  "FamilyRSVPWrapper": {
+   "id": "FamilyRSVPWrapper",
+   "type": "object",
+   "properties": {
+    "campingTripId": {
+     "type": "string",
+     "format": "int64"
+    },
+    "familyId": {
+     "type": "string",
+     "format": "int64"
+    },
+    "familyRSVPedResponse": {
+     "$ref": "TripRSVPStatus"
+    },
+    "totalMembersComing": {
+     "type": "integer",
+     "format": "int32"
     }
    }
   },
@@ -430,12 +465,19 @@
   },
   "deleteFamily": {
    "id": "gocamping.deleteFamily",
-   "path": "families",
+   "path": "family/{familyId}",
    "httpMethod": "DELETE",
-   "request": {
-    "$ref": "FamiliesWrapper",
-    "parameterName": "resource"
+   "parameters": {
+    "familyId": {
+     "type": "string",
+     "required": true,
+     "format": "int64",
+     "location": "path"
+    }
    },
+   "parameterOrder": [
+    "familyId"
+   ],
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
    ]
@@ -619,26 +661,14 @@
     "https://www.googleapis.com/auth/userinfo.email"
    ]
   },
-  "rsvpToTheTrip": {
-   "id": "gocamping.rsvpToTheTrip",
-   "path": "rsvpToTheTrip/{familyID}/{campingTripID}",
+  "rsvpForTheFamily": {
+   "id": "gocamping.rsvpForTheFamily",
+   "path": "rsvpForTheFamily",
    "httpMethod": "POST",
-   "parameters": {
-    "campingTripID": {
-     "type": "string",
-     "required": true,
-     "location": "path"
-    },
-    "familyID": {
-     "type": "string",
-     "required": true,
-     "location": "path"
-    }
+   "request": {
+    "$ref": "FamilyRSVPWrapper",
+    "parameterName": "resource"
    },
-   "parameterOrder": [
-    "familyID",
-    "campingTripID"
-   ],
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
    ]
