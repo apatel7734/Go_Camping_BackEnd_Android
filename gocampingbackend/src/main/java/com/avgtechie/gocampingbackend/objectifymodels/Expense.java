@@ -20,10 +20,6 @@ public class Expense {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getItemName() {
         return itemName;
     }
@@ -54,5 +50,16 @@ public class Expense {
 
     public void setFamilyId(Long familyId) {
         this.familyId = familyId;
+    }
+
+    public boolean validate() throws IllegalArgumentException{
+       if(itemName == null || itemName.isEmpty()){
+            throw new IllegalArgumentException("item name can't be null or empty.");
+       }else if(itemCost <= 0.0){
+           throw new IllegalArgumentException("item cost must be greater than zero.");
+       }else if(familyId == null){
+           throw new IllegalArgumentException("familyId can't be null.");
+       }
+        return  true;
     }
 }

@@ -50,7 +50,6 @@ public class DatastoreUtility{
         return findSavedFamiliesByIds(familyIds);
     }
 
-
     static void updateAllFamiliesOwedExpenseFromCampingTrip(Long campingTripId) throws IllegalArgumentException, NotFoundException {
 
         CampingTrip savedCampingTrip = findSavedCampingTrip(campingTripId);
@@ -76,4 +75,10 @@ public class DatastoreUtility{
         }
         ofy().save().entities(families).now();
     }
+
+
+
+
+
+
 }
