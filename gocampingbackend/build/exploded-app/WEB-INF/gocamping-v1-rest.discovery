@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/akSJZaVlg00aull373mqYhfYero\"",
+ "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/kBc-LbeK_F8sSJTEr7X3Rx3nWvY\"",
  "discoveryVersion": "v1",
  "id": "gocamping:v1",
  "name": "gocamping",
@@ -102,6 +102,14 @@
     },
     "title": {
      "type": "string"
+    },
+    "totalMembersComingToTrip": {
+     "type": "integer",
+     "format": "int32"
+    },
+    "totalTripExpense": {
+     "type": "number",
+     "format": "double"
     }
    }
   },

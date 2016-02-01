@@ -23,6 +23,8 @@ public class CampingTrip {
     private String addressString;
     private GeoPt locationPoint;
     private List<Long> familiesIds;
+    private int totalMembersComingToTrip;
+    private double totalTripExpense;
 
     public Long getId() {
         return id;
@@ -78,6 +80,32 @@ public class CampingTrip {
 
     public void setFamiliesIds(List<Long> familiesIds) {
         this.familiesIds = familiesIds;
+    }
+
+    public int getTotalMembersComingToTrip() {
+        return totalMembersComingToTrip;
+    }
+
+    public void setTotalMembersComingToTrip(int totalMembersComingToTrip) {
+        this.totalMembersComingToTrip = totalMembersComingToTrip;
+    }
+
+    public double getTotalTripExpense() {
+        return totalTripExpense;
+    }
+
+    public void setTotalTripExpense(double totalTripExpense) {
+        this.totalTripExpense = totalTripExpense;
+    }
+
+    public void increamentTotalMembersCount(){
+        totalMembersComingToTrip++;
+    }
+
+    public void decreamentTotalMembersCount(){
+        if(totalMembersComingToTrip > 0){
+            totalMembersComingToTrip--;
+        }
     }
 
     public CampingTripValidationResult validate(){

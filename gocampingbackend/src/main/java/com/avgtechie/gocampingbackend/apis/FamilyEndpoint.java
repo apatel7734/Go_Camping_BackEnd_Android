@@ -10,9 +10,9 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
-import com.google.appengine.repackaged.com.google.api.client.util.store.DataStoreUtils;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.VoidWork;
+import com.googlecode.objectify.Work;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,14 +102,15 @@ public class FamilyEndpoint {
             member.setFamilyId(savedFamily.getId());
             member.setName("Member - " + index);
             members.add(member);
+            savedCampingTrip.increamentTotalMembersCount();
         }
 
-        ofy().transact(new VoidWork() {
+        Family updatedFamily = ofy().transact(new Work<Family>() {
             @Override
-            public void vrun() {
+            public Family run() {
                 Map<Key<Member>, Member> savedMembers = ofy().save().entities(members).now();
                 List<Long> membersIds = savedFamily.getMemberIds();
-                if(membersIds == null){
+                if (membersIds == null) {
                     membersIds = new ArrayList<Long>();
                 }
 
@@ -117,10 +118,19 @@ public class FamilyEndpoint {
                     membersIds.add(memberKey.getId());
                 }
                 savedFamily.setMemberIds(membersIds);
-                ofy().save().entity(savedFamily).now();
-                DatastoreUtility.recalculateAllExpenseForCampingTrip(savedCampingTrip);
+                ofy().save().entities(savedCampingTrip, savedFamily).now();
+                try {
+                    DatastoreUtility.updateAllFamiliesOwedExpenseFromCampingTrip(savedCampingTrip.getId());
+                } catch (NotFoundException e) {
+                    return null;
+                }
+                return savedFamily;
             }
         });
+
+        if(updatedFamily == null){
+            new NotFoundException("Error finding campingTrip with provided campingTripID = "+savedCampingTrip.getId());
+        }
     }
 
 

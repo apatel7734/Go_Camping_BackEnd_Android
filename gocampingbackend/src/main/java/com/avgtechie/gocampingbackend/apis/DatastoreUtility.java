@@ -51,20 +51,29 @@ public class DatastoreUtility{
     }
 
 
-    static void recalculateAllExpenseForCampingTrip(CampingTrip savedCampingTrip){
-        //step 1. get CampingTripByID
+    static void updateAllFamiliesOwedExpenseFromCampingTrip(Long campingTripId) throws IllegalArgumentException, NotFoundException {
 
-        //step 2. getAllFamiliesByID
+        CampingTrip savedCampingTrip = findSavedCampingTrip(campingTripId);
+        if(savedCampingTrip == null){
+            throw new IllegalArgumentException("Null campingTrip not allowed.");
+        }
+
+        List<Family> families = findSavedFamiliesForCampingTripId(savedCampingTrip.getId());
+
+        if(families == null || families.size() <= 0){
+            throw new NotFoundException("No family found for the CampingTrip : "+campingTripId);
+        }
+
+        double totalExpensePerMember = savedCampingTrip.getTotalTripExpense() / savedCampingTrip.getTotalMembersComingToTrip();
 
 
-        //step 3. iterate through each family and calculate
-                // total members per Trip
-                // total expense per Trip by using totalSpendExpense Per Family
-
-        //step 4. get perMemberExpense by using step 3. values
-
-        //step 5. iterate and update each families totalOwedExpense using perMemberExpense * totalFamilyMembersCount
-
-
+        for (Family family : families) {
+            if(family.getMemberIds() == null || family.getMemberIds().size() <= 0){
+                continue;
+            }
+            double totalFamilyOwedExpense = family.getMemberIds().size() * totalExpensePerMember;
+            family.setTotalOwedExpenseAmount(totalFamilyOwedExpense);
+        }
+        ofy().save().entities(families).now();
     }
 }

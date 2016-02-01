@@ -63,7 +63,6 @@ public class CampingTripEndpoint {
         CampingTrip savedCampingTrip = ofy().transact(new Work<CampingTrip>() {
             @Override
             public CampingTrip run() {
-//                final Key<CampingTrip> campingTripKey = factory().allocateId(CampingTrip.class);
                 Key<CampingTrip> savedCampingTrip = ofy().save().entity(campingTripWrapper.getCampingTrip()).now();
                 List<Long> userTripKeys = userAccount.getCampingTripsKeys();
 
