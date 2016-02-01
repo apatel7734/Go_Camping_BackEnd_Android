@@ -8,12 +8,11 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
-import com.googlecode.objectify.VoidWork;
+import com.google.appengine.repackaged.com.google.api.client.util.store.DataStore;
+import com.google.appengine.repackaged.com.google.api.client.util.store.DataStoreUtils;
 import com.googlecode.objectify.Work;
 
 import java.util.List;
-
-import javax.xml.crypto.Data;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
@@ -63,13 +62,31 @@ public class ExpenseEndpoint {
 
 
     @ApiMethod(name = "getExpenses")
-    public List<Expense> getExpenses(@Named("familyID") Long familyID){
-
-        return null;
+    public List<Expense> getExpenses(@Named("familyID") Long familyID) throws NotFoundException {
+        return DatastoreUtility.findSavedExpensesByFamilyId(familyID);
     }
 
     @ApiMethod(name = "deleteExpense")
-    public void deleteExpense(@Named("expenseID") Long expenseID){
+    public void deleteExpense(@Named("expenseID") Long expenseId, @Named("campingTripId") Long campingTripId) throws NotFoundException {
+        Expense expense = DatastoreUtility.findSavedExpenseById(expenseId);
+        if(expense == null){
+            throw new NotFoundException("unable to find expense by id "+expenseId);
+        }
+        Family family = DatastoreUtility.findSavedFamily(expense.getFamilyId());
+        if(family == null){
+            throw new NotFoundException("unable to find family for the expense "+expenseId);
+        }
+        CampingTrip campingTrip = DatastoreUtility.findSavedCampingTrip(campingTripId);
+        if(campingTrip == null){
+            throw new NotFoundException("unable to find campingTrip by id "+campingTripId);
+        }
+        double itemCost = expense.getItemCost();
+        double newCampingTripTotalExpense = campingTrip.getTotalTripExpense() - itemCost;
+        double newFamilyTotalSpentExpense = family.getTotalSpentExpenseAmount() - itemCost;
+        campingTrip.setTotalTripExpense(newCampingTripTotalExpense);
+        family.setTotalSpentExpenseAmount(newFamilyTotalSpentExpense);
+
+
 
     }
 

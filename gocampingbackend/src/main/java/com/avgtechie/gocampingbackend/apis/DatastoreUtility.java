@@ -1,6 +1,7 @@
 package com.avgtechie.gocampingbackend.apis;
 
 import com.avgtechie.gocampingbackend.objectifymodels.CampingTrip;
+import com.avgtechie.gocampingbackend.objectifymodels.Expense;
 import com.avgtechie.gocampingbackend.objectifymodels.Family;
 import com.avgtechie.gocampingbackend.objectifymodels.UserAccount;
 import com.google.api.server.spi.response.NotFoundException;
@@ -76,9 +77,35 @@ public class DatastoreUtility{
         ofy().save().entities(families).now();
     }
 
+    static List<Expense> findSavedExpensesByIds(List<Long> expenseIds) throws IllegalArgumentException{
+        if(expenseIds == null || expenseIds.size() <= 0){
+            throw new IllegalArgumentException("expenseIds list can't be null or empty.");
+        }
 
+        Map<Long, Expense> savedExpenses = ofy().load().type(Expense.class).ids(expenseIds);
+        if(savedExpenses == null){
+            return new ArrayList<Expense>();
+        }
+        return new ArrayList<Expense>(savedExpenses.values());
+    }
 
+    static Expense findSavedExpenseById(Long expenseId){
+        return ofy().load().type(Expense.class).id(expenseId).now();
+    }
 
+    static  void deleteExpenseById(Long expenseId) throws NotFoundException {
+        Expense expense = findSavedExpenseById(expenseId);
+        if(expense == null){
+            throw new NotFoundException("Unable to find expense by provided id " + expenseId);
+        }
+        ofy().delete().entity(expense).now();
+    }
 
-
+    static List<Expense> findSavedExpensesByFamilyId(Long familyId) throws NotFoundException{
+        Family family = findSavedFamily(familyId);
+        if (family == null){
+            throw new NotFoundException("Family not found with provided id = " + familyId);
+        }
+        return findSavedExpensesByIds(family.getExpenseIds());
+    }
 }
