@@ -8,11 +8,10 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
-import com.google.appengine.repackaged.com.google.api.client.util.store.DataStore;
-import com.google.appengine.repackaged.com.google.api.client.util.store.DataStoreUtils;
 import com.googlecode.objectify.Work;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
@@ -22,6 +21,7 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 @Api(name = "gocamping")
 public class ExpenseEndpoint {
 
+    private static final Logger LOG = Logger.getLogger(ExpenseEndpoint.class.getName());
 
     @ApiMethod(name = "addExpense", httpMethod = HttpMethods.POST)
     public void addExpense(final Expense expense, @Named("campingTripId") final Long campingTripId) throws IllegalArgumentException, NotFoundException {
@@ -60,44 +60,64 @@ public class ExpenseEndpoint {
         }
     }
 
+    @ApiMethod(httpMethod = HttpMethods.POST,name = "updateExpense")
+    public void updateExpense(final Expense expense) throws NullPointerException, NotFoundException {
+        if(expense == null){
+            throw new NullPointerException("Expense object can't be null to update.");
+        }else if(expense != null){
+            Expense savedExpense = DatastoreUtility.findSavedExpenseById(expense.getId());
+            if(savedExpense == null){
+                throw new NotFoundException("Unable to find expense to update.");
+            }else{
+                ofy().save().entities(expense);
+            }
+        }
+    }
 
-    @ApiMethod(name = "getExpenses")
-    public List<Expense> getExpenses(@Named("familyID") Long familyID) throws NotFoundException {
+
+    @ApiMethod(httpMethod = HttpMethods.POST,name = "getAllFamilyExpenses")
+    public List<Expense> getAllFamilyExpenses(@Named("familyID") Long familyID) throws NotFoundException {
         return DatastoreUtility.findSavedExpensesByFamilyId(familyID);
     }
 
-    @ApiMethod(name = "deleteExpense")
-    public void deleteExpense(@Named("expenseID") Long expenseId, @Named("campingTripId") Long campingTripId) throws NotFoundException {
-        Expense expense = DatastoreUtility.findSavedExpenseById(expenseId);
+    @ApiMethod(httpMethod = HttpMethods.POST,name = "deleteExpense")
+    public void deleteExpense(@Named("expenseID") Long expenseId, @Named("campingTripId") final Long campingTripId) throws NotFoundException {
+        final Expense expense = DatastoreUtility.findSavedExpenseById(expenseId);
         if(expense == null){
             throw new NotFoundException("unable to find expense by id "+expenseId);
         }
-        Family family = DatastoreUtility.findSavedFamily(expense.getFamilyId());
+        final Family family = DatastoreUtility.findSavedFamily(expense.getFamilyId());
         if(family == null){
             throw new NotFoundException("unable to find family for the expense "+expenseId);
         }
-        CampingTrip campingTrip = DatastoreUtility.findSavedCampingTrip(campingTripId);
+        final CampingTrip campingTrip = DatastoreUtility.findSavedCampingTrip(campingTripId);
         if(campingTrip == null){
             throw new NotFoundException("unable to find campingTrip by id "+campingTripId);
         }
         double itemCost = expense.getItemCost();
-        double newCampingTripTotalExpense = campingTrip.getTotalTripExpense() - itemCost;
-        double newFamilyTotalSpentExpense = family.getTotalSpentExpenseAmount() - itemCost;
-        campingTrip.setTotalTripExpense(newCampingTripTotalExpense);
-        family.setTotalSpentExpenseAmount(newFamilyTotalSpentExpense);
+        final double newCampingTripTotalExpense = campingTrip.getTotalTripExpense() - itemCost;
+        final double newFamilyTotalSpentExpense = family.getTotalSpentExpenseAmount() - itemCost;
+        if(newCampingTripTotalExpense > 0.0 && newFamilyTotalSpentExpense > 0.0){
+            campingTrip.setTotalTripExpense(newCampingTripTotalExpense);
+            family.setTotalSpentExpenseAmount(newFamilyTotalSpentExpense);
+            family.getExpenseIds().remove(expense.getId());
+           Boolean success = ofy().transact(new Work<Boolean>() {
+               @Override
+               public Boolean run() {
+                   ofy().save().entities(campingTrip, family);
+                   ofy().delete().entity(expense);
+                   try {
+                       DatastoreUtility.updateAllFamiliesOwedExpenseFromCampingTrip(campingTripId);
+                   } catch (NotFoundException e) {
+                       return false;
+                   }
+                   return true;
+               }
+           });
 
-
-
-    }
-
-    @ApiMethod(name = "deleteAllExpenses")
-    public void deleteAllExpenses(@Named("familyID") Long familyID){
-
-    }
-
-    @ApiMethod(name = "getExpense")
-    public Expense getExpense(@Named("expenseID") Long expenseID){
-
-        return null;
+            if(!success){
+                throw new NotFoundException("Error finding campingTrip by provided Id " + campingTripId);
+            }
+        }
     }
 }

@@ -10,6 +10,7 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
+import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.VoidWork;
 import com.googlecode.objectify.Work;
@@ -30,7 +31,7 @@ public class FamilyEndpoint {
     private static final Logger LOG =
             Logger.getLogger(FamilyEndpoint.class.getName());
 
-    @ApiMethod(name = "inviteFamilies")
+    @ApiMethod(httpMethod = HttpMethods.POST, name = "inviteFamilies")
     public void inviteFamilies(@Named("campingTripId") Long campingTripId, FamiliesWrapper familiesWrapper) throws  NotFoundException{
 
         final CampingTrip savedCampingTrip = DatastoreUtility.findSavedCampingTrip(campingTripId);
@@ -58,7 +59,7 @@ public class FamilyEndpoint {
         // TODO: 1/31/16 add task queue to send messages.
     }
 
-    @ApiMethod(name = "getFamily")
+    @ApiMethod(httpMethod = HttpMethods.POST,name = "getFamily")
     public Family getFamily(@Named("familyID") Long familyId) throws NotFoundException{
 
         Family savedFamily = DatastoreUtility.findSavedFamily(familyId);
@@ -76,7 +77,7 @@ public class FamilyEndpoint {
 
 
 
-    @ApiMethod(name="rsvpForTheFamily")
+    @ApiMethod(httpMethod = HttpMethods.POST, name="rsvpForTheFamily")
     public void rsvpForTheFamily(final FamilyRSVPWrapper familyRSVPWrapper) throws NotFoundException, IllegalArgumentException{
         final Family savedFamily = DatastoreUtility.findSavedFamily(familyRSVPWrapper.getFamilyId());
 
