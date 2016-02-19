@@ -47,7 +47,7 @@ public class MemberEndpoint {
     }
 
     @ApiMethod(name = "addMember", httpMethod = ApiMethod.HttpMethod.POST)
-    public void addMember(final Member member, @Named("familyId") final Long familyId, @Named("campingTripId") final Long campingTripId) throws IllegalArgumentException, NotFoundException {
+    public void addMember(final Member member, final @Named("familyID") Long familyId, @Named("campingTripId") final Long campingTripId) throws IllegalArgumentException, NotFoundException {
         if(member == null){
             throw new IllegalArgumentException("member object can't be null.");
         }
