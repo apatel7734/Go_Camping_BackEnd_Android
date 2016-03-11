@@ -13,6 +13,7 @@ import java.util.List;
 public class UserAccount {
     @Id
     long phoneNumber;
+    String password;
     String fullName;
     String email;
     List<Long> campingTripsKeys;
@@ -56,5 +57,13 @@ public class UserAccount {
 
     public void setMembersKeys(List<Long> membersKeys) {
         this.membersKeys = membersKeys;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

@@ -11,6 +11,7 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
+import com.google.appengine.repackaged.com.google.api.client.util.store.DataStore;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.VoidWork;
 import com.googlecode.objectify.Work;
@@ -69,9 +70,16 @@ public class FamilyEndpoint {
         return savedFamily;
     }
 
+    @ApiMethod(httpMethod = HttpMethods.POST, name = "getFamiliesForCampingTrip")
+    public List<Family> getFamiliesForCampingTrip(@Named("campingTripId") Long campingTripId) throws NotFoundException {
+        return DatastoreUtility.findSavedFamiliesForCampingTripId(campingTripId);
+    }
+
     @ApiMethod(name = "deleteFamily")
     public void deleteFamily(@Named("familyId") Long familyId){
         // TODO: 1/31/16 find family and delete.
+        final Family savedFamily = DatastoreUtility.findSavedFamily(familyId);
+        // TODO: 3/11/16 find Expenses and Members for the family and delete
         // TODO: 1/31/16 recalculate campingTrip expense for each Family if RSVPed status = YES.
     }
 

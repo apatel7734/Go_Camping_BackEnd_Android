@@ -10,6 +10,7 @@ import com.google.api.server.spi.response.NotFoundException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
 import com.googlecode.objectify.Work;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -66,9 +67,14 @@ public class MemberEndpoint {
             @Override
             public Boolean run() {
                 ofy().save().entity(member).now();
-                // TODO: 2/2/16 add Member to family.
-                savedFamily.getMemberIds().add(member.getId());
+                List<Long> memberIds = savedFamily.getMemberIds();
+                if(memberIds == null){
+                    memberIds = new ArrayList<Long>();
+                }
+                memberIds.add(member.getId());
+                savedFamily.setMemberIds(memberIds);
                 savedCampingTrip.increamentTotalMembersCount();
+                ofy().save().entities(savedFamily,savedCampingTrip).now();
                 try {
                     DatastoreUtility.updateAllFamiliesOwedExpenseFromCampingTrip(campingTripId);
                 } catch (NotFoundException e) {

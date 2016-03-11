@@ -18,8 +18,8 @@ public class CampingTrip {
     @Id
     private Long id;
     private String title;
-    private Date dateFrom;
-    private Date dateTo;
+    private Long dateFrom;
+    private Long dateTo;
     private String addressString;
     private GeoPt locationPoint;
     private List<Long> familiesIds;
@@ -38,19 +38,19 @@ public class CampingTrip {
         this.title = title;
     }
 
-    public Date getDateFrom() {
+    public Long getDateFrom() {
         return dateFrom;
     }
 
-    public void setDateFrom(Date dateFrom) {
+    public void setDateFrom(Long dateFrom) {
         this.dateFrom = dateFrom;
     }
 
-    public Date getDateTo() {
+    public Long getDateTo() {
         return dateTo;
     }
 
-    public void setDateTo(Date dateTo) {
+    public void setDateTo(Long dateTo) {
         this.dateTo = dateTo;
     }
 
@@ -107,20 +107,15 @@ public class CampingTrip {
     public CampingTripValidationResult validate(){
 
         Date today = Calendar.getInstance().getTime();
-
-        // TODO: 1/29/16 remove these test lines.
-        //test lines start******
-        dateFrom = today;
-        dateTo = today;
-        //test lines end*******
+        Date fromDate = new Date(dateFrom);
+        Date toDate = new Date(dateTo);
 
         if (title == null || title.isEmpty()){
             return new CampingTripValidationResult(false,"Must provide campingTrip Title.");
-            // TODO: 1/29/16 remove test lines, just for development.
-//        }else if (dateFrom == null || dateFrom.before(today)){
-//            return new CampingTripValidationResult(false,"FromDate must be after today's date.");
-//        }else if (dateTo == null || dateTo.before(dateFrom)){
-//            return new CampingTripValidationResult(false, "ToDate must be after FromDate.");
+        }else if (fromDate == null || fromDate.before(today)){
+            return new CampingTripValidationResult(false,"FromDate must be after today's date.");
+        }else if (toDate == null || toDate.before(fromDate)){
+            return new CampingTripValidationResult(false, "ToDate must be after FromDate.");
         }else if (locationPoint == null){
             return new CampingTripValidationResult(false, "Must provide locationPoint");
         }else if (addressString == null || addressString.isEmpty()){

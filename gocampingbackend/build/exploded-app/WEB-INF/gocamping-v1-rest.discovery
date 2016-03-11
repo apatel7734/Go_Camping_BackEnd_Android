@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/C6iUusVsdKh0SGdHvvCSSKqB0JE\"",
+ "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/c15e4tJFxxCZHlIHx5aejCX4ytc\"",
  "discoveryVersion": "v1",
  "id": "gocamping:v1",
  "name": "gocamping",
@@ -11,9 +11,9 @@
   "x32": "http://www.google.com/images/icons/product/search-32.gif"
  },
  "protocol": "rest",
- "baseUrl": "https://myApplicationId.appspot.com/_ah/api/gocamping/v1/",
+ "baseUrl": "https://gocampingapis.appspot.com/_ah/api/gocamping/v1/",
  "basePath": "/_ah/api/gocamping/v1/",
- "rootUrl": "https://myApplicationId.appspot.com/_ah/api/",
+ "rootUrl": "https://gocampingapis.appspot.com/_ah/api/",
  "servicePath": "gocamping/v1/",
  "batchPath": "batch",
  "parameters": {
@@ -80,11 +80,11 @@
     },
     "dateFrom": {
      "type": "string",
-     "format": "date-time"
+     "format": "int64"
     },
     "dateTo": {
      "type": "string",
-     "format": "date-time"
+     "format": "int64"
     },
     "familiesIds": {
      "type": "array",
@@ -247,6 +247,18 @@
     }
    }
   },
+  "FamilyCollection": {
+   "id": "FamilyCollection",
+   "type": "object",
+   "properties": {
+    "items": {
+     "type": "array",
+     "items": {
+      "$ref": "Family"
+     }
+    }
+   }
+  },
   "FamilyRSVPWrapper": {
    "id": "FamilyRSVPWrapper",
    "type": "object",
@@ -352,6 +364,9 @@
       "type": "string",
       "format": "int64"
      }
+    },
+    "password": {
+     "type": "string"
     },
     "phoneNumber": {
      "type": "string",
@@ -604,6 +619,28 @@
     "https://www.googleapis.com/auth/userinfo.email"
    ]
   },
+  "getFamiliesForCampingTrip": {
+   "id": "gocamping.getFamiliesForCampingTrip",
+   "path": "familycollection/{campingTripId}",
+   "httpMethod": "POST",
+   "parameters": {
+    "campingTripId": {
+     "type": "string",
+     "required": true,
+     "format": "int64",
+     "location": "path"
+    }
+   },
+   "parameterOrder": [
+    "campingTripId"
+   ],
+   "response": {
+    "$ref": "FamilyCollection"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
   "getFamily": {
    "id": "gocamping.getFamily",
    "path": "family/{familyID}",
@@ -666,6 +703,34 @@
    "request": {
     "$ref": "FamiliesWrapper",
     "parameterName": "resource"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "login": {
+   "id": "gocamping.login",
+   "path": "login/{phoneNumber}/{password}",
+   "httpMethod": "POST",
+   "parameters": {
+    "password": {
+     "type": "string",
+     "required": true,
+     "location": "path"
+    },
+    "phoneNumber": {
+     "type": "string",
+     "required": true,
+     "format": "int64",
+     "location": "path"
+    }
+   },
+   "parameterOrder": [
+    "phoneNumber",
+    "password"
+   ],
+   "response": {
+    "$ref": "UserAccount"
    },
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
