@@ -4,6 +4,7 @@ import com.avgtechie.gocampingbackend.objectifymodels.CampingTrip;
 import com.avgtechie.gocampingbackend.objectifymodels.Expense;
 import com.avgtechie.gocampingbackend.objectifymodels.Family;
 import com.avgtechie.gocampingbackend.objectifymodels.Member;
+import com.avgtechie.gocampingbackend.objectifymodels.TripRSVPStatus;
 import com.avgtechie.gocampingbackend.objectifymodels.UserAccount;
 import com.google.api.server.spi.response.NotFoundException;
 import com.googlecode.objectify.Key;
@@ -131,5 +132,18 @@ public class DatastoreUtility{
         }
 
         return  findSavedMembersByIds(family.getMemberIds());
+    }
+
+    static Key<Family> saveFamilyForUser(UserAccount userAccount){
+
+        if(userAccount != null){
+            Family family = new Family();
+            family.setFullName(userAccount.getFullName());
+            family.setEmail(userAccount.getEmail());
+            family.setPhoneNumber(String.valueOf(userAccount.getPhoneNumber()));
+            family.setTripRSVPStatus(TripRSVPStatus.YES);
+            return ofy().save().entity(family).now();
+        }
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package com.avgtechie.gocampingbackend.apis;
 
 import com.avgtechie.gocampingbackend.objectifymodels.CampingTrip;
 import com.avgtechie.gocampingbackend.objectifymodels.CampingTripWrapper;
+import com.avgtechie.gocampingbackend.objectifymodels.Family;
 import com.avgtechie.gocampingbackend.objectifymodels.UserAccount;
 import com.avgtechie.gocampingbackend.utils.CampingTripValidationResult;
 import com.google.api.server.spi.config.Api;
@@ -10,6 +11,7 @@ import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
+import com.google.appengine.repackaged.com.google.common.base.Flag;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Work;
 
@@ -62,17 +64,27 @@ public class CampingTripEndpoint {
         CampingTrip savedCampingTrip = ofy().transact(new Work<CampingTrip>() {
             @Override
             public CampingTrip run() {
-                Key<CampingTrip> savedCampingTrip = ofy().save().entity(campingTripWrapper.getCampingTrip()).now();
-                List<Long> userTripKeys = userAccount.getCampingTripsKeys();
 
+
+
+                List<Long> userTripKeys = userAccount.getCampingTripsKeys();
+                Key<Family> savedFamilyKey = DatastoreUtility.saveFamilyForUser(userAccount);
                 if (userTripKeys == null) {
                     userTripKeys = new ArrayList<Long>();
                 }
+                CampingTrip campingTrip = campingTripWrapper.getCampingTrip();
+                List<Long> familyIds = campingTrip.getFamiliesIds();
+                if (familyIds == null) {
+                    familyIds = new ArrayList<Long>();
+                }
+                familyIds.add(savedFamilyKey.getId());
+                campingTrip.setFamiliesIds(familyIds);
+                Key<CampingTrip> savedCampingTrip = ofy().save().entity(campingTrip).now();
 
                 userTripKeys.add(savedCampingTrip.getId());
                 userAccount.setCampingTripsKeys(userTripKeys);
-                ofy().save().entities(campingTripWrapper.getCampingTrip(), userAccount);
-                return campingTripWrapper.getCampingTrip();
+                ofy().save().entities(userAccount);
+                return campingTrip;
             }
         });
 
