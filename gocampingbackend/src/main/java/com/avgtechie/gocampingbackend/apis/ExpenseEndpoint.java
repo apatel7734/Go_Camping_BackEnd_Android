@@ -8,8 +8,11 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
+import com.google.appengine.repackaged.com.google.common.base.Flag;
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Work;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -45,7 +48,14 @@ public class ExpenseEndpoint {
                 double newFamilyTotalSpendExpense = savedFamily.getTotalSpentExpenseAmount() + expense.getItemCost();
                 savedCampingTrip.setTotalTripExpense(newTotalTripExpense);
                 savedFamily.setTotalSpentExpenseAmount(newFamilyTotalSpendExpense);
-                ofy().save().entities(expense,savedCampingTrip,savedFamily).now();
+                List<Long> expenseIds = savedFamily.getExpenseIds();
+                if(expenseIds == null){
+                    expenseIds = new ArrayList<Long>();
+                }
+                Key<Expense> savedExpense = ofy().save().entity(expense).now();
+                expenseIds.add(savedExpense.getId());
+                savedFamily.setExpenseIds(expenseIds);
+                ofy().save().entities(savedCampingTrip,savedFamily).now();
                 try {
                     DatastoreUtility.updateAllFamiliesOwedExpenseFromCampingTrip(campingTripId);
                 } catch (NotFoundException e) {
