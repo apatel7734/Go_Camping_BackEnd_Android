@@ -11,10 +11,17 @@ import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
-import com.google.appengine.repackaged.com.google.api.client.util.store.DataStore;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.VoidWork;
 import com.googlecode.objectify.Work;
+import com.twilio.sdk.TwilioRestClient;
+import com.twilio.sdk.TwilioRestException;
+import com.twilio.sdk.resource.factory.MessageFactory;
+import com.twilio.sdk.resource.instance.Message;
+
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +36,35 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 @Api(name = "gocamping")
 public class FamilyEndpoint {
 
-    private static final Logger LOG =
-            Logger.getLogger(FamilyEndpoint.class.getName());
+    private static final Logger LOG = Logger.getLogger(FamilyEndpoint.class.getName());
+    public static final String ACCOUNT_SID = "ACe89157aa2fc144b9562a3e7621c7ac8c";
+    public static final String AUTH_TOKEN = "73f3ba3818dd56782f133b151f41ddb0";
+
+    @ApiMethod(httpMethod = HttpMethods.GET)
+    public void sendMessageTest() {
+        TwilioRestClient client = new TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN);
+
+        // Build the parameters
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("To", "+15104617034"));
+        params.add(new BasicNameValuePair("From", "+15005550006"));
+        params.add(new BasicNameValuePair("Body", "Hi Test Credential No Charge"));
+
+        MessageFactory messageFactory = client.getAccount().getMessageFactory();
+        Message message = null;
+        try {
+            message = messageFactory.create(params);
+        } catch (TwilioRestException e) {
+            e.printStackTrace();
+        }
+        System.out.println(message.toString());
+    }
 
     @ApiMethod(httpMethod = HttpMethods.POST, name = "inviteFamilies")
-    public void inviteFamilies(@Named("campingTripId") Long campingTripId, FamiliesWrapper familiesWrapper) throws  NotFoundException{
+    public void inviteFamilies(@Named("campingTripId") Long campingTripId, FamiliesWrapper familiesWrapper) throws NotFoundException {
 
         final CampingTrip savedCampingTrip = DatastoreUtility.findSavedCampingTrip(campingTripId);
-        if(savedCampingTrip == null){
+        if (savedCampingTrip == null) {
             throw new NotFoundException("Can't find CampingTrip with provided ID " + campingTripId);
         }
 
@@ -46,7 +74,7 @@ public class FamilyEndpoint {
             public void vrun() {
                 Map<Key<Family>, Family> savedFamilies = ofy().save().entities(invitedFamilies).now();
                 List<Long> familyKeys = savedCampingTrip.getFamiliesIds();
-                if(familyKeys == null){
+                if (familyKeys == null) {
                     familyKeys = new ArrayList<Long>();
                 }
                 for (Key<Family> familyKey : savedFamilies.keySet()) {
@@ -60,12 +88,12 @@ public class FamilyEndpoint {
         // TODO: 1/31/16 add task queue to send messages.
     }
 
-    @ApiMethod(httpMethod = HttpMethods.POST,name = "getFamily")
-    public Family getFamily(@Named("familyID") Long familyId) throws NotFoundException{
+    @ApiMethod(httpMethod = HttpMethods.POST, name = "getFamily")
+    public Family getFamily(@Named("familyID") Long familyId) throws NotFoundException {
 
         Family savedFamily = DatastoreUtility.findSavedFamily(familyId);
-        if(savedFamily == null){
-            throw new NotFoundException("Family is not available by provided ID "+familyId);
+        if (savedFamily == null) {
+            throw new NotFoundException("Family is not available by provided ID " + familyId);
         }
         return savedFamily;
     }
@@ -76,7 +104,7 @@ public class FamilyEndpoint {
     }
 
     @ApiMethod(name = "deleteFamily")
-    public void deleteFamily(@Named("familyId") Long familyId){
+    public void deleteFamily(@Named("familyId") Long familyId) {
         // TODO: 1/31/16 find family and delete.
         final Family savedFamily = DatastoreUtility.findSavedFamily(familyId);
         // TODO: 3/11/16 find Expenses and Members for the family and delete
@@ -84,29 +112,28 @@ public class FamilyEndpoint {
     }
 
 
-
-    @ApiMethod(httpMethod = HttpMethods.POST, name="rsvpForTheFamily")
-    public void rsvpForTheFamily(final FamilyRSVPWrapper familyRSVPWrapper) throws NotFoundException, IllegalArgumentException{
+    @ApiMethod(httpMethod = HttpMethods.POST, name = "rsvpForTheFamily")
+    public void rsvpForTheFamily(final FamilyRSVPWrapper familyRSVPWrapper) throws NotFoundException, IllegalArgumentException {
         final Family savedFamily = DatastoreUtility.findSavedFamily(familyRSVPWrapper.getFamilyId());
 
-        if(savedFamily == null){
-            throw new NotFoundException("Unable to find Family with Id : "+ familyRSVPWrapper.getFamilyId());
+        if (savedFamily == null) {
+            throw new NotFoundException("Unable to find Family with Id : " + familyRSVPWrapper.getFamilyId());
         }
 
-        if(familyRSVPWrapper.getFamilyRSVPedResponse() == TripRSVPStatus.YES && familyRSVPWrapper.getTotalMembersComing() <= 0){
+        if (familyRSVPWrapper.getFamilyRSVPedResponse() == TripRSVPStatus.YES && familyRSVPWrapper.getTotalMembersComing() <= 0) {
             throw new IllegalArgumentException("Invalid totalMembersComing for familyId" + familyRSVPWrapper.getFamilyId() + ", When RSVP YES. totalMembersComing must be greater than zero.");
         }
 
         final CampingTrip savedCampingTrip = DatastoreUtility.findSavedCampingTrip(familyRSVPWrapper.getCampingTripId());
-        if(savedCampingTrip == null){
-            throw new NotFoundException("Unable to find CampingTrip with provided Id : "+ familyRSVPWrapper.getCampingTripId());
+        if (savedCampingTrip == null) {
+            throw new NotFoundException("Unable to find CampingTrip with provided Id : " + familyRSVPWrapper.getCampingTripId());
         }
 
         savedFamily.setTripRSVPStatus(familyRSVPWrapper.getFamilyRSVPedResponse());
 
 
         final List<Member> members = new ArrayList<Member>();
-        for (int index = 0 ; index < familyRSVPWrapper.getTotalMembersComing() ; index++){
+        for (int index = 0; index < familyRSVPWrapper.getTotalMembersComing(); index++) {
             Member member = new Member();
             member.setFamilyId(savedFamily.getId());
             member.setName("Member - " + index);
@@ -137,8 +164,8 @@ public class FamilyEndpoint {
             }
         });
 
-        if(updatedFamily == null){
-            new NotFoundException("Error finding campingTrip with provided campingTripID = "+savedCampingTrip.getId());
+        if (updatedFamily == null) {
+            new NotFoundException("Error finding campingTrip with provided campingTripID = " + savedCampingTrip.getId());
         }
     }
 

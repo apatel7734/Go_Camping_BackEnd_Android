@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"u_zXkMELIlX4ktyNbM2XKD4vK8E/SC5Zm-vlVK_Ei51agox-kapmNlM\"",
+ "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/Nwoma-9jJ7U-UXxLx27h2omotkY\"",
  "discoveryVersion": "v1",
  "id": "gocamping:v1",
  "name": "gocamping",
@@ -765,6 +765,20 @@
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
    ]
+  }
+ },
+ "resources": {
+  "familyEndpoint": {
+   "methods": {
+    "sendMessageTest": {
+     "id": "gocamping.familyEndpoint.sendMessageTest",
+     "path": "sendMessageTest",
+     "httpMethod": "GET",
+     "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email"
+     ]
+    }
+   }
   }
  }
 }
