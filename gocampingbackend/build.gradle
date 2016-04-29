@@ -28,7 +28,7 @@ dependencies {
     compile 'javax.servlet:servlet-api:2.5'
     compile 'com.googlecode.objectify:objectify:5.0.3'
     compile 'com.ganyo:gcm-server:1.0.2'
-    compile files('libs/twilio-java-sdk-5.10.1-SNAPSHOT-jar-with-dependencies.jar')
+    compile files('libs/twilio-java-sdk-5.10.1-SNAPSHOT-jar-with-dependencies.jar','libs/authy-java.jar')
 }
 
 appengine {

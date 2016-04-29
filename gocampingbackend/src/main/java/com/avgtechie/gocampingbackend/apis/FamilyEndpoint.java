@@ -37,27 +37,10 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 public class FamilyEndpoint {
 
     private static final Logger LOG = Logger.getLogger(FamilyEndpoint.class.getName());
-    public static final String ACCOUNT_SID = "ACe89157aa2fc144b9562a3e7621c7ac8c";
-    public static final String AUTH_TOKEN = "73f3ba3818dd56782f133b151f41ddb0";
 
     @ApiMethod(httpMethod = HttpMethods.GET)
     public void sendMessageTest() {
-        TwilioRestClient client = new TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN);
 
-        // Build the parameters
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("To", "+15104617034"));
-        params.add(new BasicNameValuePair("From", "+15005550006"));
-        params.add(new BasicNameValuePair("Body", "Hi Test Credential No Charge"));
-
-        MessageFactory messageFactory = client.getAccount().getMessageFactory();
-        Message message = null;
-        try {
-            message = messageFactory.create(params);
-        } catch (TwilioRestException e) {
-            e.printStackTrace();
-        }
-        System.out.println(message.toString());
     }
 
     @ApiMethod(httpMethod = HttpMethods.POST, name = "inviteFamilies")
