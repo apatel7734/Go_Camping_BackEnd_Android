@@ -6,22 +6,16 @@ import com.avgtechie.gocampingbackend.objectifymodels.Family;
 import com.avgtechie.gocampingbackend.objectifymodels.FamilyRSVPWrapper;
 import com.avgtechie.gocampingbackend.objectifymodels.Member;
 import com.avgtechie.gocampingbackend.objectifymodels.TripRSVPStatus;
+import com.avgtechie.gocampingbackend.objectifymodels.UserAccount;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
+import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.repackaged.com.google.api.client.http.HttpMethods;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.VoidWork;
 import com.googlecode.objectify.Work;
-import com.twilio.sdk.TwilioRestClient;
-import com.twilio.sdk.TwilioRestException;
-import com.twilio.sdk.resource.factory.MessageFactory;
-import com.twilio.sdk.resource.instance.Message;
-
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +35,33 @@ public class FamilyEndpoint {
     @ApiMethod(httpMethod = HttpMethods.GET)
     public void sendMessageTest() {
 
+    }
+
+    @ApiMethod(httpMethod = HttpMethods.POST, name = "getUserFamilyByCampingTrip")
+    public Family getUserFamilyByCampingTrip(@Named("campingTripId") Long campingTripId, UserAccount userAccount) throws NotFoundException, UnauthorizedException{
+        final CampingTrip savedCampingTrip = DatastoreUtility.findSavedCampingTrip(campingTripId);
+
+        UserAccount savedUserAccount = DatastoreUtility.findSavedUserAccount(userAccount.getPhoneNumber());
+        //get userAccount by phone number and user campingKeys
+        if (savedUserAccount == null) {
+            throw new UnauthorizedException("Authorization required.");
+        }
+
+        if (savedCampingTrip == null) {
+            throw new NotFoundException("Can't find CampingTrip with provided ID " + campingTripId);
+        }
+
+        List<Family> families = DatastoreUtility.findSavedFamiliesForCampingTripId(savedCampingTrip.getId());
+        Family usersFamily = null;
+        for (Family family : families){
+            String userPhoneNumber = Long.toString(userAccount.getPhoneNumber());
+            if (family.getPhoneNumber().equalsIgnoreCase(userPhoneNumber)){
+                usersFamily = family;
+                break;
+            }
+        }
+
+        return usersFamily;
     }
 
     @ApiMethod(httpMethod = HttpMethods.POST, name = "inviteFamilies")
@@ -71,7 +92,7 @@ public class FamilyEndpoint {
         // TODO: 1/31/16 add task queue to send messages.
     }
 
-    @ApiMethod(httpMethod = HttpMethods.POST, name = "getFamily")
+    @ApiMethod(httpMethod = HttpMethods.POST, name = "getFamily", path = "familybyid")
     public Family getFamily(@Named("familyID") Long familyId) throws NotFoundException {
 
         Family savedFamily = DatastoreUtility.findSavedFamily(familyId);
