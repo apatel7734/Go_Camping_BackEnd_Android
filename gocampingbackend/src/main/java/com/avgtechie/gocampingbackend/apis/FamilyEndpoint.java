@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
+import static com.googlecode.objectify.ObjectifyService.register;
 
 /**
  * Created by fob966 on 1/26/16.
@@ -78,11 +79,29 @@ public class FamilyEndpoint {
             public void vrun() {
                 Map<Key<Family>, Family> savedFamilies = ofy().save().entities(invitedFamilies).now();
                 List<Long> familyKeys = savedCampingTrip.getFamiliesIds();
+
                 if (familyKeys == null) {
                     familyKeys = new ArrayList<Long>();
                 }
-                for (Key<Family> familyKey : savedFamilies.keySet()) {
-                    familyKeys.add(familyKey.getId());
+
+                for (Map.Entry<Key<Family>, Family> entry: savedFamilies.entrySet()){
+                    familyKeys.add(entry.getKey().getId());
+                    long userPhoneNumber = Long.valueOf(entry.getValue().getPhoneNumber());
+                    UserAccount registeredUser = DatastoreUtility.findSavedUserAccount(userPhoneNumber);
+                    if(registeredUser != null){
+                        //user already register update campingtrip keys
+                        List<Long> usersCurrentCampingTrips = registeredUser.getCampingTripsKeys();
+
+                        if (usersCurrentCampingTrips == null) {
+                            usersCurrentCampingTrips = new ArrayList<Long>();
+                        }
+                        usersCurrentCampingTrips.add(savedCampingTrip.getId());
+                        registeredUser.setCampingTripsKeys(usersCurrentCampingTrips);
+                    }else{
+                        //user doesnot exist put them into invitation list.
+
+                    }
+                    ofy().save().entity(registeredUser).now();
                 }
                 savedCampingTrip.setFamiliesIds(familyKeys);
                 ofy().save().entity(savedCampingTrip).now();

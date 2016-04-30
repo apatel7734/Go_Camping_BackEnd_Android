@@ -18,7 +18,7 @@ public class Family {
     private String phoneNumber;
     private double totalSpentExpenseAmount;
     private double totalOwedExpenseAmount;
-    private TripRSVPStatus tripRSVPStatus;
+    private TripRSVPStatus tripRSVPStatus = TripRSVPStatus.PENDING;
     private List<Long> expenseIds;
     private List<Long> memberIds;
 
